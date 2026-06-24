@@ -33,8 +33,7 @@
     bd.innerHTML = `
       <div class="modal" role="dialog" aria-modal="true" aria-label="Policy Notice">
         <h3>Policy Notice</h3>
-        <p>Are you accepting our policy to access the guide?
-        This notice is informational and does not block access.</p>
+        <p>Before proceeding, please review and accept our cookie policy to improve your experience.</p>
         <hr class="modal-divider">
         <div class="modal-actions">
           <button class="btn"       id="age-yes">Yes, Accept</button>
