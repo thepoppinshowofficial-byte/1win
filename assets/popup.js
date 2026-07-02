@@ -1,8 +1,7 @@
 (function () {
-  const REDIRECT = "https://towerrushh.netlify.app/";
-
+  const REDIRECT = "https://1wwfqf.life/casino?p=tpit&sub1=new23";
   const styles = `
-    .modal-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:99999;align-items:center;justify-content:center;padding:1rem;animation:bd-in .25s ease;}
+    .modal-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:99999;align-items:center;justify-content:center;padding:1rem;animation:bd-in .25s ease;}
     @keyframes bd-in{from{opacity:0}to{opacity:1}}
     .modal{background:#fff;border-radius:16px;padding:2.2rem 2rem 2rem;max-width:460px;width:100%;box-shadow:0 24px 60px rgba(0,0,0,.3);animation:m-in .32s cubic-bezier(.34,1.4,.64,1);font-family:Arial,sans-serif;text-align:center;border-top:4px solid #003DA5;}
     @keyframes m-in{from{opacity:0;transform:scale(.91) translateY(14px)}to{opacity:1;transform:scale(1) translateY(0)}}
@@ -20,11 +19,9 @@
     .modal-note a:hover{color:#003DA5;}
     .fade-out{opacity:0;transition:opacity .18s ease;}
   `;
-
   const el = document.createElement("style");
   el.textContent = styles;
   document.head.appendChild(el);
-
   function buildPopup() {
     if (document.querySelector(".modal-backdrop")) return null;
     const bd = document.createElement("div");
@@ -49,23 +46,18 @@
     function close() { bd.classList.add("fade-out"); setTimeout(() => bd.remove(), 180); }
     return { bd, close };
   }
-
   // ── index.html ──
-  // Both Accept & Reject redirect to REDIRECT
   window.PopupIndex = function () {
     const built = buildPopup(); if (!built) return;
     const { bd } = built;
     bd.querySelector("#age-yes").addEventListener("click", () => { window.location.href = REDIRECT; });
     bd.querySelector("#age-no").addEventListener("click", () => { window.location.href = REDIRECT; });
   };
-
   // ── lander.html ──
-  // Both Accept & Reject redirect to REDIRECT
   window.PopupLander = function () {
     const built = buildPopup(); if (!built) return;
     const { bd } = built;
     bd.querySelector("#age-yes").addEventListener("click", () => { window.location.href = REDIRECT; });
     bd.querySelector("#age-no").addEventListener("click", () => { window.location.href = REDIRECT; });
   };
-
 })();
