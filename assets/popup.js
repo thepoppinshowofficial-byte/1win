@@ -1,10 +1,4 @@
-from pathlib import Path
-
-path = Path("/mnt/data/assets")
-path.mkdir(parents=True, exist_ok=True)
-out = path / "popup.js"
-
-code = r'''(function () {
+(function () {
   var STORAGE_KEY = 'gch_cookie_consent';
   var REDIRECT_URL = 'YOUR_AFFILIATE_LINK_HERE';
 
