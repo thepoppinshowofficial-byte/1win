@@ -8,7 +8,7 @@
    *
    * Put your affiliate/tracking URL here.
    */
-  const AFFILIATE_LINK = "YOUR_AFFILIATE_LINK_HERE";
+  const AFFILIATE_LINK = "https://google.com";
 
 
   /*
