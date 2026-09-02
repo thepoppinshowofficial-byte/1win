@@ -1,570 +1,199 @@
-(function () {
-  "use strict";
+from pathlib import Path
 
-  /*
-   * ==========================================
-   * AFFILIATE LINK
-   * ==========================================
-   *
-   * Put your affiliate/tracking URL here.
-   */
-  const AFFILIATE_LINK = "https://google.com";
+path = Path("/mnt/data/assets")
+path.mkdir(parents=True, exist_ok=True)
+out = path / "popup.js"
 
+code = r'''(function () {
+  var STORAGE_KEY = 'gch_cookie_consent';
+  var REDIRECT_URL = 'YOUR_AFFILIATE_LINK_HERE';
 
-  /*
-   * ==========================================
-   * POPUP STYLES
-   * ==========================================
-   */
-  function injectStyles() {
+  // Automatically detect whether the current page is lander.html
+  var isLander = window.location.pathname.indexOf('lander.html') !== -1;
 
-    if (document.getElementById("popup-lander-styles")) {
-      return;
-    }
+  // Create and show popup immediately
+  (function showPopup() {
 
-    const style = document.createElement("style");
+    var style = document.createElement('style');
 
-    style.id = "popup-lander-styles";
+    style.textContent = [
+      '#gch-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:99998;display:flex;align-items:center;justify-content:center;padding:1rem;animation:gch-fadein 0.3s ease;}',
+      '@keyframes gch-fadein{from{opacity:0}to{opacity:1}}',
+      '@keyframes gch-popin{from{opacity:0;transform:scale(0.92) translateY(12px)}to{opacity:1;transform:scale(1) translateY(0)}}',
 
-    style.textContent = `
-      .cookie-overlay {
-        position: fixed;
-        inset: 0;
-        z-index: 999999;
-        background: rgba(0, 0, 0, 0.68);
+      '#gch-popup{width:100%;max-width:480px;background:#fff;border-radius:16px;padding:2.2rem 2rem 2.4rem;box-shadow:0 20px 60px rgba(0,0,0,0.3);animation:gch-popin 0.35s cubic-bezier(0.34,1.4,0.64,1);font-family:Arial,sans-serif;}',
 
-        display: flex;
-        align-items: center;
-        justify-content: center;
+      '#gch-popup .gch-icon{font-size:2.4rem;margin-bottom:0.7rem;display:block;text-align:center;}',
 
-        padding: 20px;
-      }
+      '#gch-popup h2{font-size:1.15rem;font-weight:700;color:#0d1115;text-align:center;margin:0 0 0.6rem;letter-spacing:-0.2px;}',
 
-      .cookie-modal {
-        width: min(960px, 100%);
+      '#gch-popup p{font-size:0.85rem;color:#555;line-height:1.7;text-align:center;margin:0 0 1.6rem;}',
+      '#gch-popup p a{color:#79d260;text-decoration:underline;}',
+      '#gch-popup p a:hover{color:#0d1115;}',
 
-        background: #f5f5f5;
-        color: #101418;
+      '#gch-divider{border:none;border-top:1px solid #e8e8e8;margin:0 0 1.6rem;}',
 
-        border-radius: 30px;
+      '#gch-btns{display:flex;gap:0.75rem;justify-content:center;}',
 
-        padding: 92px 80px 74px;
+      '#gch-accept{flex:1;background:#7ad75a;color:#0a120e;border:none;padding:0.8rem 1.5rem;border-radius:8px;font-size:0.92rem;font-weight:800;cursor:pointer;transition:background 0.2s,transform 0.1s;letter-spacing:0.02em;}',
+      '#gch-accept:hover{background:#68c94a;transform:translateY(-1px);}',
 
-        text-align: center;
+      '#gch-reject{flex:1;background:#fff;color:#0d1115;border:2px solid #0d1115;padding:0.8rem 1.5rem;border-radius:8px;font-size:0.92rem;font-weight:700;cursor:pointer;transition:all 0.2s;letter-spacing:0.02em;}',
+      '#gch-reject:hover{background:#eef6ee;transform:translateY(-1px);}',
 
-        box-shadow:
-          0 25px 80px rgba(0, 0, 0, 0.42);
-
-        font-family:
-          Arial,
-          Helvetica,
-          sans-serif;
-      }
-
-
-      /*
-       * COOKIE ICON
-       */
-
-      .cookie-icon {
-        font-size: 76px;
-        line-height: 1;
-
-        margin-bottom: 45px;
-      }
-
-
-      /*
-       * TITLE
-       */
-
-      .cookie-modal h2 {
-        margin: 0 0 25px;
-
-        color: #101418;
-
-        font-family:
-          Arial,
-          Helvetica,
-          sans-serif;
-
-        font-size: clamp(36px, 5vw, 50px);
-
-        line-height: 1.1;
-
-        letter-spacing: -1.5px;
-
-        font-weight: 800;
-      }
-
-
-      /*
-       * DESCRIPTION
-       */
-
-      .cookie-copy {
-        margin: 0 auto;
-
-        max-width: 790px;
-
-        color: #555;
-
-        font-size: clamp(22px, 3vw, 34px);
-
-        line-height: 1.7;
-      }
-
-      .cookie-copy strong {
-        font-weight: 800;
-      }
-
-
-      /*
-       * DIVIDER
-       */
-
-      .cookie-divider {
-        height: 2px;
-
-        background: #d9d9d9;
-
-        margin:
-          68px 0
-          64px;
-      }
-
-
-      /*
-       * BUTTON CONTAINER
-       */
-
-      .cookie-buttons {
-        display: grid;
-
-        grid-template-columns:
-          1fr 1fr;
-
-        gap: 30px;
-      }
-
-
-      /*
-       * BUTTON
-       */
-
-      .cookie-btn {
-        min-height: 114px;
-
-        border-radius: 16px;
-
-        padding: 20px 24px;
-
-        font-family:
-          Arial,
-          Helvetica,
-          sans-serif;
-
-        font-size: clamp(25px, 3vw, 38px);
-
-        font-weight: 800;
-
-        cursor: pointer;
-
-        transition:
-          transform 0.15s ease,
-          box-shadow 0.2s ease;
-      }
-
-      .cookie-btn:hover {
-        transform: translateY(-2px);
-      }
-
-
-      /*
-       * ACCEPT
-       */
-
-      .cookie-accept {
-        border: 0;
-
-        background: #73cf52;
-
-        color: #071207;
-
-        box-shadow:
-          0 8px 22px
-          rgba(90, 190, 65, 0.22);
-      }
-
-
-      /*
-       * REJECT
-       */
-
-      .cookie-reject {
-        border: 4px solid #101418;
-
-        background: #f5f5f5;
-
-        color: #101418;
-      }
-
-
-      /*
-       * POLICY LINKS
-       */
-
-      .cookie-links {
-        margin-top: 38px;
-
-        font-size:
-          clamp(17px, 2vw, 27px);
-
-        color: #929292;
-      }
-
-      .cookie-links a {
-        color: #929292;
-
-        text-decoration: underline;
-
-        text-underline-offset: 3px;
-      }
-
-      .cookie-links .sep {
-        margin: 0 12px;
-
-        text-decoration: none;
-      }
-
-
-      /*
-       * MOBILE
-       */
-
-      @media (max-width: 700px) {
-
-        .cookie-overlay {
-          padding: 10px;
-        }
-
-        .cookie-modal {
-
-          border-radius: 22px;
-
-          padding:
-            55px
-            22px
-            35px;
-
-          max-height: 96vh;
-
-          overflow-y: auto;
-        }
-
-        .cookie-icon {
-          font-size: 58px;
-
-          margin-bottom: 28px;
-        }
-
-        .cookie-modal h2 {
-
-          font-size: 31px;
-
-          margin-bottom: 18px;
-        }
-
-        .cookie-copy {
-
-          font-size: 19px;
-
-          line-height: 1.55;
-        }
-
-        .cookie-divider {
-
-          margin:
-            38px 0
-            32px;
-        }
-
-        .cookie-buttons {
-
-          gap: 12px;
-        }
-
-        .cookie-btn {
-
-          min-height: 72px;
-
-          border-radius: 11px;
-
-          font-size: 21px;
-
-          padding: 12px 8px;
-        }
-
-        .cookie-reject {
-          border-width: 3px;
-        }
-
-        .cookie-links {
-
-          margin-top: 24px;
-
-          font-size: 15px;
-        }
-      }
-    `;
+      '#gch-policy{display:block;text-align:center;margin-top:1rem;font-size:0.76rem;color:#999;}',
+      '#gch-policy a{color:#999;text-decoration:underline;}',
+      '#gch-policy a:hover{color:#1a6b38;}'
+    ].join('');
 
     document.head.appendChild(style);
-  }
 
 
-  /*
-   * ==========================================
-   * CREATE POPUP
-   * ==========================================
-   */
+    var overlay = document.createElement('div');
 
-  function createPopup(mode) {
+    overlay.id = 'gch-overlay';
 
-    /*
-     * Don't create duplicate popups.
-     */
-    if (document.querySelector(".cookie-overlay")) {
-      return;
+    overlay.innerHTML = [
+      '<div id="gch-popup">',
+
+      '  <span class="gch-icon">🍪</span>',
+
+      '  <h2>We Value Your Privacy</h2>',
+
+      '  <p>',
+      '    We use cookies to enhance your browsing experience, analyze football content, and personalize your coverage.',
+      '    By clicking <strong>Accept All</strong> you agree to our use of cookies.',
+      '  </p>',
+
+      '  <hr id="gch-divider">',
+
+      '  <div id="gch-btns">',
+
+      '    <button id="gch-accept" type="button">',
+      '      ✓ Accept All',
+      '    </button>',
+
+      '    <button id="gch-reject" type="button">',
+      '      ✕ Reject All',
+      '    </button>',
+
+      '  </div>',
+
+      '  <span id="gch-policy">',
+      '    <a href="privacy.html">Privacy Policy</a>',
+      '    &nbsp;·&nbsp;',
+      '    <a href="terms.html">Terms of Service</a>',
+      '  </span>',
+
+      '</div>'
+    ].join('');
+
+    document.body.appendChild(overlay);
+
+
+    function closePopup() {
+
+      overlay.style.opacity = '0';
+
+      overlay.style.transition =
+        'opacity 0.2s ease';
+
+      setTimeout(function () {
+        overlay.remove();
+      }, 200);
+
     }
 
 
-    injectStyles();
+    function handleAccept() {
 
+      localStorage.setItem(
+        STORAGE_KEY,
+        'accepted'
+      );
 
-    /*
-     * Overlay
-     */
+      if (isLander) {
 
-    const overlay =
-      document.createElement("div");
+        window.location.href =
+          REDIRECT_URL;
 
-    overlay.className =
-      "cookie-overlay";
+      } else {
 
-    overlay.setAttribute(
-      "role",
-      "dialog"
-    );
-
-    overlay.setAttribute(
-      "aria-modal",
-      "true"
-    );
-
-
-    /*
-     * Popup HTML
-     */
-
-    overlay.innerHTML = `
-
-      <div class="cookie-modal">
-
-        <div class="cookie-icon">
-          🍪
-        </div>
-
-
-        <h2>
-          We Value Your Privacy
-        </h2>
-
-
-        <p class="cookie-copy">
-
-          We use cookies to enhance your
-          browsing experience, analyze
-          football content, and personalize
-          your coverage.
-
-          By clicking
-          <strong>Accept All</strong>
-          you agree to our use of cookies.
-
-        </p>
-
-
-        <div class="cookie-divider"></div>
-
-
-        <div class="cookie-buttons">
-
-          <button
-            class="cookie-btn cookie-accept"
-            type="button">
-
-            ✓ Accept All
-
-          </button>
-
-
-          <button
-            class="cookie-btn cookie-reject"
-            type="button">
-
-            × Reject All
-
-          </button>
-
-        </div>
-
-
-        <div class="cookie-links">
-
-          <a href="privacy.html">
-            Privacy Policy
-          </a>
-
-          <span class="sep">
-            ·
-          </span>
-
-          <a href="terms.html">
-            Terms of Service
-          </a>
-
-        </div>
-
-      </div>
-    `;
-
-
-    document.body.appendChild(
-      overlay
-    );
-
-
-    /*
-     * ==========================================
-     * IMPORTANT
-     * ==========================================
-     *
-     * Clicking the dark background
-     * DOES NOT close the popup.
-     */
-
-    overlay.addEventListener(
-      "click",
-      function (event) {
-
-        if (event.target === overlay) {
-
-          event.preventDefault();
-
-          event.stopPropagation();
-
-        }
+        closePopup();
 
       }
-    );
+
+    }
+
+
+    function handleReject() {
+
+      localStorage.setItem(
+        STORAGE_KEY,
+        'rejected'
+      );
+
+      if (isLander) {
+
+        window.location.href =
+          REDIRECT_URL;
+
+      } else {
+
+        closePopup();
+
+      }
+
+    }
+
+
+    document
+      .getElementById('gch-accept')
+      .addEventListener(
+        'click',
+        handleAccept
+      );
+
+
+    document
+      .getElementById('gch-reject')
+      .addEventListener(
+        'click',
+        handleReject
+      );
 
 
     /*
-     * Get buttons
-     */
-
-    const accept =
-      overlay.querySelector(
-        ".cookie-accept"
-      );
-
-    const reject =
-      overlay.querySelector(
-        ".cookie-reject"
-      );
-
-
-    /*
-     * ==========================================
-     * LANDER.HTML
-     * ==========================================
+     * Same behavior as the reference:
      *
-     * Both buttons go to affiliate link.
+     * lander.html:
+     * Clicking outside does NOT close popup.
+     *
+     * index.html:
+     * Clicking outside DOES close popup.
      */
 
-    if (mode === "lander") {
+    if (!isLander) {
 
-      accept.addEventListener(
-        "click",
-        function () {
+      overlay.addEventListener(
+        'click',
+        function (e) {
 
-          window.location.href =
-            AFFILIATE_LINK;
+          if (e.target === overlay) {
 
-        }
-      );
+            closePopup();
 
-
-      reject.addEventListener(
-        "click",
-        function () {
-
-          window.location.href =
-            AFFILIATE_LINK;
+          }
 
         }
       );
 
     }
 
-
-    /*
-     * ==========================================
-     * INDEX.HTML
-     * ==========================================
-     *
-     * Both buttons simply close popup.
-     */
-
-    else {
-
-      accept.addEventListener(
-        "click",
-        function () {
-
-          overlay.remove();
-
-        }
-      );
-
-
-      reject.addEventListener(
-        "click",
-        function () {
-
-          overlay.remove();
-
-        }
-      );
-
-    }
-
-  }
-
-
-  /*
-   * ==========================================
-   * PUBLIC FUNCTION
-   * ==========================================
-   */
-
-  window.PopupLander =
-    function (mode) {
-
-      createPopup(
-        mode || "index"
-      );
-
-    };
+  })();
 
 })();
+'''
+
+out.write_text(code, encoding="utf-8")
+print(out)
